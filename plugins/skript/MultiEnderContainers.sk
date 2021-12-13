@@ -1,0 +1,232 @@
+options:
+    boxlistpage-name: "Multi EnderContainers"
+    box-name: "&r&5Container"
+    box-row: 6
+    boxitem-type1: gray shulker box
+    boxitem-type2: light gray shulker box
+    boxitem-type3: red shulker box
+    boxitem-name: "&r&5Container"
+    guiitem2-type: unbreakable diamond hoe with damage value 1204
+    guiitem-type1: unbreakable diamond hoe with damage value 1205
+    guiitem-type2: unbreakable diamond hoe with damage value 1206
+    nextboxitem-name: "Next Container"
+    backboxitem-name: "Back Container"
+    move-sound: "block.chest.open"
+    move-sound-pitch: "1"
+    didntmove-sound: "block.lava.pop"
+    didntmove-sound-pitch: "1"
+        
+
+# ⚠️ container番号は実際に表示されるContaine番号(1~9)-1の数字(0~8)で制御する
+
+# Playerが開いているコンテナの番号は、変数で制御、参照しているため、変更する場合は変数をちゃんと代入し直さないといけない
+# playerと、番号を渡すことで、Playerのコンテナ番号を変えてくれる
+function setContainerNumber(player: player, num: num):
+    set {boxnum.%uuid of {_player}%} to {_num}
+
+# player、inventoryを渡すことで、インベントリーがplayerのコンテナ番号に対応したMECのコンテナかどうかチェックしてくれる
+# 参照されるcontainer番号は勝手に%uuid of player%で取得するため引数に渡す必要なし
+function checkContainer(player: player, inventory: inventory) :: boolean:
+    set {_inventory.name} to "%{_player}%'s %{@box-name}% -No.%{boxnum.%uuid of {_player}%}+1%"
+    if name of {_inventory} is {_inventory.name}:
+        return true
+    else:
+        return false
+
+# player、inventoryを渡すことで、MECのコンテナとして開かれたインベントリにあるアイテムのデータをMECに保存してくれる関数
+# 参照されるcontainer番号は勝手に%uuid of player%で取得するため引数に渡す必要なし
+function saveContainerData(player: player, inventory: inventory):
+    delete {ec%{boxnum.%uuid of {_player}%}%-items.%uuid of {_player}%::*}
+    set {_slot} to 0
+    set {_notAirItemsNum} to 0
+    loop {box-size} times:
+        if slot {_slot} of {_inventory} isn't air :
+            add 1 to {_notAirItemsNum}
+        add slot {_slot} of {_inventory} to {ec%{boxnum.%uuid of {_player}%}%-items.%uuid of {_player}%::*}
+        add 1 to {_slot}
+
+# playerに指定番号のコンテナを開く
+# container-owner コンテナの所有者
+# target コンテナを開いて見る人。AさんN番目のコンテナををBさんが見る　といったことができる
+function openContainerByNum(container-owner: player, target: player, box-number: number):
+    open chest inventory with min(max({@box-row},2),6) row named "%{_container-owner}%'s %{@box-name}% -No.%{_box-number}+1%" to {_target}
+    execute console command "execute @a ~ ~ ~ playsound minecraft:%{@move-sound}% block %{_target}% ~ ~ ~ 0.5 %{@move-sound-pitch}%"
+    
+
+# playerのコンテナを開く
+# 特に番号していなく、勝手に変数から参照して開くためのもの
+# 特殊な使用をしない限り、普通はこっちだけでいい
+function openContainer(container-owner: player, target: player):
+    set {_boxnum} to {boxnum.%uuid of {_container-owner}%}
+    open chest inventory with min(max({@box-row},2),6) row named "%{_container-owner}%'s %{@box-name}% -No.%{_boxnum}+1%" to {_target}
+    execute console command "execute @a ~ ~ ~ playsound minecraft:%{@move-sound}% block %{_target}% ~ ~ ~ 0.5 %{@move-sound-pitch}%"
+
+# 開いたインベントリに、コンテナのアイテムを反映する
+# コンテナを開く処理は「空のインベントリーを表示する」→「アイテムデータを引っ張り出してきて一個ずつ設置する」なので、必ずこれをする必要がある。
+function setInventoryAsContainer(player: player, inventory: inventory):
+    # 開いたインベントリにデータからアイテムを置く
+    set {_slot} to 0
+    set {_num} to {box-size}
+    set {_items::*} to {ec%{boxnum.%uuid of {_player}%}%-items.%uuid of {_player}%::*}
+    # optionsで設定したコンテナの列数から出される、実際に使えるBoxのサイズが0より大きいことを条件にする
+    # 他の部分で安全策取ってるし、ないとは思うけど、一応設置
+    if {box-size} > 0:
+        # アイテムソート作ろうとして失敗した
+        # 現在放置中。動かんぞ
+        if 0 is 1:
+            loop {_items::*}:
+                add type of loop-value to {_sorted.itemslist::*}
+            set {_sorted.itemslist::*} to alphabetically sorted {_sorted.itemslist::*}
+            loop {_sorted.itemslist::*}:
+                loop {_items::*}:
+                    loop-value-1 is type of loop-value-2
+                    add loop-value-2 to {_Csorted.itemslist::*}
+            set {_items::*} to {_Csorted.itemslist::*}
+        # {_items::*}に、コンテナのアイテムのデータが入ってる。
+        # コンテナデータをダイレクトにいじるのはちょっと怖いので、一回こうやって変数に代入して使ってる
+        # アイテムデータが入ったリストを、loopで一個ずつ回すわけだ
+        loop {_items::*}:
+            set {_item.name} to name of loop-value
+            set {_item.type} to type of loop-value
+            # GUI用のアイテムが入ってたら消す。
+            # サイズ変更とかした時に、前の分のGUIアイテムが紛れる可能性があるからね
+            add {@nextboxitem-name},{@backboxitem-name} to {_gui.item.name::*}
+            add {@guiitem-type1},{@guiitem-type2} to {_gui.item.type::*}
+            if {_gui.item.type::*} contains {_item.type}:
+                if {_gui.item.name::*} contains {_item.name}:
+                    remove loop-value from {_items::*}
+                    add air to {_items::*}
+                    send "バグアイテム1をFix" to {_player}
+            if {_item.type} is {@guiitem2-type}:
+                if {_item.name} is " ":
+                    remove loop-value from {_items::*}
+                    add air to {_items::*}
+                    send "バグアイテム2をFix" to {_player}
+            set slot {_slot} of {_inventory} to loop-value
+            add 1 to {_slot}
+            add -1 to {_num}
+        # next container とか　before containerとかのGUI用itemを置く
+        set slot {box-size} of {_inventory} to {@guiitem-type1} named {@backboxitem-name}
+        set slot {box-size}+8 of {_inventory} to {@guiitem-type2} named {@nextboxitem-name}
+        set {_slot} to {box-size}+1
+        loop 7 times:
+            set slot {_slot} of {_inventory} to {@guiitem2-type} named " "
+            add 1 to {_slot}
+
+        if {_items::*} isn't {ec%{boxnum.%uuid of {_player}%}%-items.%uuid of {_player}%::*}:
+            set {ec%{boxnum.%uuid of {_player}%}%-items.%uuid of {_player}%::*} to {_items::*}
+
+on right click:
+    clicked block is ender chest
+    event-player is not sneaking
+    cancel event
+    execute console command "execute @a ~ ~ ~ playsound minecraft:%{@move-sound}% block %player% ~ ~ ~ 0.5 %{@move-sound-pitch}%"
+    set {box-size} to min(max({@box-row},2),6)*9-9
+    set {boxitem-lore} to "Size: %{box-size}%"
+    set {boxnum.%uuid of event-player%} to 0
+    open chest inventory with 1 row named {@boxlistpage-name} to event-player
+    set {_slot} to 0
+
+    # loop-value-2 が(loop-value - 2)の値になるとかいう謎仕様回避のためやむなく 文字列list に、、、
+    add "a","b","c","d","e","f","g","h","i" to {_loop::*}
+    loop {_loop::*}:
+        set {_lore} to "%{boxitem-lore}%"
+
+        # 変数のplayerごとの区別を %player% から %uuid of player% に変えたため、本校前のデータがある場合はいまのデータに上書きして消去
+        if {ec%{_slot}%-items.%event-player%::*} is set:
+            set {ec%{_slot}%-items.%uuid of event-player%::*} to {ec%{_slot}%-items.%event-player%::*}
+            send "[Server] MultiEnderContainer Pg.%{slot}%の中身を復元しました。このメッセージを2回以上見た場合はバグとして報告してください。" to event-player
+            delete {ec%{_slot}%-items.%event-player%::*}
+
+        set {_loop-num} to 0
+        set {_itemnum} to 0
+        # アイテムリストのデータからair以外のアイテムを一つずつ取り出して、総数をチェック
+        # 多分もっといい方法ある
+        loop {ec%{_slot}%-items.%uuid of event-player%::*}:
+            add 1 to {_loop-num}
+            if {_loop-num} <= {box-size}:
+                if type of loop-value-2 is not air:
+                    add 1 to {_itemnum}
+
+        # アイテムの総数がコンテナの最大数の半分に達しているかどうか
+        # 半分以上、半分未満、０、でそれぞれ設置するGUI用のアイテムのタイプとLoreを設定する
+        set {_gui-item} to 0
+        set {_gui-item.type} to {@boxitem-type1} # GUI用のアイテムのタイプ
+        set {_gui-item.lore} to " " # GUI用のアイテムのLore
+        if {_itemnum} >= {box-size}/2:
+            # 達していたため、許容量警告バージョンのアイテムに設定
+            set {_gui-item.type} to {@boxitem-type3}
+            set {_gui-item.lore} to "&r&fUsing: &4&l%{_itemnum}%&r&f / %{box-size}%"
+        if {_itemnum} < {box-size}/2:
+            # 達していなかったため、そのままデフォルトアイテムに設定
+            set {_gui-item.type} to {@boxitem-type2}
+            set {_gui-item.lore} to "&r&fUsing: %{_itemnum}% / %{box-size}%"
+        if {_itemnum} = 0:
+            # そもそも使われていなかったため、未使用バージョンのアイテムに設定
+            set {_gui-item.type} to {@boxitem-type1}
+            set {_gui-item.lore} to "&r&fUsing: 0 / %{box-size}%"
+
+        # 条件分岐で得たLoreやTypeを反映したアイテムを作成、{_slot}番目のslotに設置
+        set {_gui.item} to {_gui-item.type} named "%{@boxitem-name}% No.%{_slot}+1%" with lore "%{_gui-item.lore}%"
+        set slot {_slot} of event-player's current inventory to 1 of {_gui.item}
+                                     
+        # 次なるstotへ、、、
+        add 1 to {_slot}
+
+on inventory close:
+    if checkContainer(event-player, event-inventory) is true:
+        saveContainerData(event-player, event-inventory)
+
+on inventory open:
+    if checkContainer(event-player, event-inventory) is true:
+        setInventoryAsContainer(event-player, event-inventory)
+
+on inventory click:
+    type of event-item is {@guiitem2-type}
+    name of event-item is " "
+    cancel event
+
+on inventory click:
+    if name of event-item contains "%{@boxitem-name}% No.":
+        cancel event
+        setContainerNumber(event-player,Index of event-slot)
+        openContainerByNum(event-player,event-player,Index of event-slot)
+
+function playSoundMoveContainer(player: player):
+    execute console command "execute @a ~ ~ ~ playsound minecraft:%{@move-sound}% block %{_player}% ~ ~ ~ 0.5 %{@move-sound-pitch}%"
+function playSoundMoveCanncel(player: player):
+    execute console command "execute @a ~ ~ ~ playsound minecraft:%{@move-sound}% block %{_player}% ~ ~ ~ 0.5 %{@didntmove-sound-pitch}%"
+
+on inventory click:
+    if type of event-item is ({@guiitem-type1}):
+        if checkContainer(event-player,event-inventory):
+            if name of event-item is {@nextboxitem-name}:
+                cancel event
+                set {_slot} to 0
+                saveContainerData(player,event-inventory)
+                set {_num} to {boxnum.%uuid of event-player%}
+                add 1 to {_num}
+                if {_num} > 8:
+                    playSoundMoveCanncel(player)
+                    set {_num} to 8
+                else:
+                    playSoundMoveContainer(player)
+                setContainerNumber(event-player,{_num})
+                openContainer(player,player)
+
+on inventory click:
+    if type of event-item is {@guiitem-type2}:
+        if checkContainer(event-player,event-inventory):
+            if name of event-item contains {@backboxitem-name}:
+                cancel event
+                set {_slot} to 0
+                saveContainerData(player,event-inventory)
+                set {_num} to {boxnum.%uuid of event-player%}
+                add -1 to {_num}
+                if {_num} < 0:
+                    playSoundMoveCanncel(player)
+                    set {_num} to 0
+                else:
+                    playSoundMoveContainer(player)
+                setContainerNumber(event-player,{_num})
+                openContainer(player,player)
