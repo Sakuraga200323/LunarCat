@@ -6,14 +6,23 @@ options:
     boxitem-type2: light gray shulker box
     boxitem-type3: red shulker box
     boxitem-name: "&r&5Container"
+    # クリックしない、アイテムを置かせない所にはめるようItem
     guiitem2-type: unbreakable diamond hoe with damage value 1204
+    # 次ページへのボタンになるItem
     guiitem-type1: unbreakable diamond hoe with damage value 1205
+    # 前ページへのボタンになるItem
     guiitem-type2: unbreakable diamond hoe with damage value 1206
+    # 次ページへのボタンのアイテムの名前
     nextboxitem-name: "Next Container"
+    # 前ページへのボタンのアイテムの名前
     backboxitem-name: "Back Container"
+    # ページ間移動をしたときの音
     move-sound: "block.chest.open"
+    # ページ間移動をしたときの音のピッチ
     move-sound-pitch: "1"
+    # ページ間移動をしようとしてできなかったときの音(最終ページで次へボタンを押した場合など)
     didntmove-sound: "block.lava.pop"
+    # ページ間移動をしようとしてできなかったときの音のぴっち
     didntmove-sound-pitch: "1"
         
 
