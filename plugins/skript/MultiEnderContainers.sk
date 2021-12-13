@@ -183,33 +183,52 @@ on right click:
         set {_gui.item} to {_gui-item.type} named "%{@boxitem-name}% No.%{_slot}+1%" with lore "%{_gui-item.lore}%"
         set slot {_slot} of event-player's current inventory to 1 of {_gui.item}
                                      
-        # 次なるstotへ、、、
+        # 次なるslotへ、、、
         add 1 to {_slot}
 
+
+# コンテナが閉じられたときの処理
+# GUIボタンItemでいちいちファンクション実行がめんどかったからこっちにまとめた
+# こいつがバグの原因説ある
 on inventory close:
     if checkContainer(event-player, event-inventory) is true:
         saveContainerData(event-player, event-inventory)
 
+
+# コンテナが開かれたときの処理
+# GUIボタンItemでいち(ry
+# こいつがバ(ry
 on inventory open:
     if checkContainer(event-player, event-inventory) is true:
         setInventoryAsContainer(event-player, event-inventory)
 
+
+# 穴埋め用のアイテムが外れるのを防ぐ処理
+# たまに取れるって聞いたがなんでや,,,
 on inventory click:
     type of event-item is {@guiitem2-type}
     name of event-item is " "
     cancel event
 
+
+# 一番最初のContainer一覧ぺーじのボタンアイテムの処理
+# 名前とtype判別で対応する番号のコンテナを開かせる
 on inventory click:
     if name of event-item contains "%{@boxitem-name}% No.":
         cancel event
         setContainerNumber(event-player,Index of event-slot)
         openContainerByNum(event-player,event-player,Index of event-slot)
 
+
+# ページ移動ができたときとできなかったときの音のfunction
+# なんでこんな場所に書いてるかって？　ここ関数化できることにあとから気づいて、そのまま書いてから放置しちゃった、、、
 function playSoundMoveContainer(player: player):
     execute console command "execute @a ~ ~ ~ playsound minecraft:%{@move-sound}% block %{_player}% ~ ~ ~ 0.5 %{@move-sound-pitch}%"
 function playSoundMoveCanncel(player: player):
     execute console command "execute @a ~ ~ ~ playsound minecraft:%{@move-sound}% block %{_player}% ~ ~ ~ 0.5 %{@didntmove-sound-pitch}%"
 
+
+# 次ページに移動するボタンItemをクリックしたときの処理
 on inventory click:
     if type of event-item is ({@guiitem-type1}):
         if checkContainer(event-player,event-inventory):
@@ -227,6 +246,7 @@ on inventory click:
                 setContainerNumber(event-player,{_num})
                 openContainer(player,player)
 
+# 前ページに移動するボタンItemをクリックしたときの処理
 on inventory click:
     if type of event-item is {@guiitem-type2}:
         if checkContainer(event-player,event-inventory):
