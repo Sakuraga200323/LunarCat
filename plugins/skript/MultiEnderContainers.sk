@@ -1,3 +1,5 @@
+# loop-numberで代用できるところ多すぎ、、、そのうち最適化しないと、、、
+
 options:
     boxlistpage-name: "Multi EnderContainers"
     box-name: "&r&5Container"
@@ -92,6 +94,7 @@ function setInventoryAsContainer(player: player, inventory: inventory):
                     loop-value-1 is type of loop-value-2
                     add loop-value-2 to {_Csorted.itemslist::*}
             set {_items::*} to {_Csorted.itemslist::*}
+
         # {_items::*}に、コンテナのアイテムのデータが入ってる。
         # コンテナデータをダイレクトにいじるのはちょっと怖いので、一回こうやって変数に代入して使ってる
         # アイテムデータが入ったリストを、loopで一個ずつ回すわけだ
