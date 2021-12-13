@@ -27,8 +27,8 @@ options:
         
 
 # ⚠️ container番号は実際に表示されるContaine番号(1~9)-1の数字(0~8)で制御する
+# ⚠️ Playerが開いているコンテナの番号は、変数で制御、参照しているため、変更する場合は変数をちゃんと代入し直さないといけない
 
-# Playerが開いているコンテナの番号は、変数で制御、参照しているため、変更する場合は変数をちゃんと代入し直さないといけない
 # playerと、番号を渡すことで、Playerのコンテナ番号を変えてくれる
 function setContainerNumber(player: player, num: num):
     set {boxnum.%uuid of {_player}%} to {_num}
@@ -54,16 +54,17 @@ function saveContainerData(player: player, inventory: inventory):
         add slot {_slot} of {_inventory} to {ec%{boxnum.%uuid of {_player}%}%-items.%uuid of {_player}%::*}
         add 1 to {_slot}
 
-# playerに指定番号のコンテナを開く
+
+# 別の人の指定番号のコンテナを開くことができる
 # container-owner コンテナの所有者
-# target コンテナを開いて見る人。AさんN番目のコンテナををBさんが見る　といったことができる
+# target コンテナを開いて見る人
 function openContainerByNum(container-owner: player, target: player, box-number: number):
     open chest inventory with min(max({@box-row},2),6) row named "%{_container-owner}%'s %{@box-name}% -No.%{_box-number}+1%" to {_target}
     execute console command "execute @a ~ ~ ~ playsound minecraft:%{@move-sound}% block %{_target}% ~ ~ ~ 0.5 %{@move-sound-pitch}%"
     
 
 # playerのコンテナを開く
-# 特に番号していなく、勝手に変数から参照して開くためのもの
+# 特に番号指定なしに、勝手に変数から参照して開くためのもの
 # 特殊な使用をしない限り、普通はこっちだけでいい
 function openContainer(container-owner: player, target: player):
     set {_boxnum} to {boxnum.%uuid of {_container-owner}%}
