@@ -1,0 +1,3 @@
+on death of living entity:
+    type of event-entity isn't player
+    delete 	event-entity

@@ -1,0 +1,210 @@
+
+options:
+    prefix: "[&7Dungeon&f] "
+    gateBlockType: iron bars
+    bossName: "&f&kaaaaaaaa&f"
+    gate.block: iron bars
+    area3.button.location: getLocation(-54,78,305,world "mvw-test")
+    area3.locationA: getLocation(-43,77,317,world "mvw-test")
+    area3.locationB: getLocation(-67,90,292,world "mvw-test")
+    area3.gate1.locationA: getLocation(-51,78,316,world "mvw-test")
+    area3.gate1.locationB: getLocation(-47,81,317,world "mvw-test")
+    area3.gate2.locationA: getLocation(-53, 78, 292,world "mvw-test")
+    area3.gate2.locationB: getLocation(-55, 80, 293,world "mvw-test")
+    spawnLocationE: getLocation(-48, 78, 305,world "mvw-test")
+    spawnLocationD: getLocation(-50, 78, 301,world "mvw-test")
+    spawnLocationF: getLocation(-50, 78, 309,world "mvw-test")
+    spawnLocationG: getLocation(-54, 78, 311,world "mvw-test")
+    spawnLocationH: getLocation(-54, 78, 299,world "mvw-test")
+    spawnLocationB: getLocation(-58, 78, 309,world "mvw-test")
+    spawnLocationC: getLocation(-58, 78, 301,world "mvw-test")
+    spawnLocationA: getLocation(-60, 78, 305,world "mvw-test")
+
+command /check area3:
+    permission: op
+    trigger:
+        show explosion at blocks within {@area3.locationA} and {@area3.locationB} to event-player
+
+on load:
+    set {area3.flag} to false
+    set {area3.move.flag} to true
+    set {area3.wave} to 1
+    add "" to {area3.clear.players::*}
+    remove "" from {area3.clear.players::*}
+    set blocks within {@area3.gate2.locationA} and {@area3.gate2.locationB} to {@gate.block}
+    set blocks within {@area3.gate1.locationA} and {@area3.gate1.locationB} to air
+    set blocks within {@area3.button.location} and {@area3.button.location} to end portal frame
+    set blocks within {@spawnLocationA} and {@spawnLocationA} to torch
+    set blocks within {@spawnLocationB} and {@spawnLocationB} to torch
+    set blocks within {@spawnLocationC} and {@spawnLocationC} to torch
+    set blocks within {@spawnLocationD} and {@spawnLocationD} to torch
+    set blocks within {@spawnLocationE} and {@spawnLocationE} to torch
+    set blocks within {@spawnLocationF} and {@spawnLocationF} to torch
+    set blocks within {@spawnLocationG} and {@spawnLocationG} to torch
+    set blocks within {@spawnLocationH} and {@spawnLocationH} to torch
+
+on quit:
+    if {area3.players::*} contains event-player:
+        remove event-player from {area3.players::*}
+        
+    if {area3.clear.players::*} contains event-player:
+        remove event-player from {area3.clear.players::*}
+
+on death:
+    type of event-entity is player
+    if {area3.players::*} contains event-player:
+        remove event-player from {area3.players::*}
+        stop sound "record.ward" for the event-player
+    if {area3.clear.players::*} contains event-player:
+        remove event-player from {area3.clear.players::*}
+
+
+on click:
+    if clicked block is end portal frame:
+        cancel the event
+        if {area3.players::*} contains event-player:
+            if {area3.flag} is false:
+                set clicked block to air
+                set blocks within {@area3.gate2.locationA} and {@area3.gate2.locationB} to {@gate.block}
+                set blocks within {@area3.gate1.locationA} and {@area3.gate1.locationB} to {@gate.block}
+                set blocks within {@spawnLocationA} and {@spawnLocationA} to redstone torch
+                set blocks within {@spawnLocationB} and {@spawnLocationB} to redstone torch
+                set blocks within {@spawnLocationC} and {@spawnLocationC} to redstone torch
+                set blocks within {@spawnLocationD} and {@spawnLocationD} to redstone torch
+                set blocks within {@spawnLocationE} and {@spawnLocationE} to redstone torch
+                set blocks within {@spawnLocationF} and {@spawnLocationF} to redstone torch
+                set blocks within {@spawnLocationG} and {@spawnLocationG} to redstone torch
+                set blocks within {@spawnLocationH} and {@spawnLocationH} to redstone torch
+                loop {area3.players::*}:
+                    play explosion at blocks within {@area3.gate1.locationA} and {@area3.gate1.locationB} to loop-value
+                    play explosion at blocks within {@area3.gate1.locationA} and {@area3.gate1.locationB} to loop-value
+                    play sound "entity.irongolem.hurt" with volume 2 and pitch 0 to loop-value at {@area3.gate1.locationA}
+                wait 40 tick
+                loop {area3.players::*}:
+                    send subtitle "&c汝の力を示すが良い…" to loop-value for 5 seconds with fadein 0.5 second and fade out 0.5 second
+                    play sound "entity.witch.ambient" with volume 1 and pitch 0 to loop-value
+                    play sound "ambient.cave" with volume 1 and pitch 2 to loop-value
+                    show mob spawner flames at the clicked block to loop-value
+                    send "&6==== &6&ltips &6====","&f&7敵&fを全て倒せ！" to loop-value
+                wait 120 tick
+                loop {area3.players::*}:
+                    send subtitle "&6Wave &6&l1 &7(Final Wave)" to loop-value for 5 seconds with fadein 0.5 second and fade out 0.5 second
+                    play sound "record.ward" with volume 2  and pitch 0 to the player
+                execute console command "/mm m spawn -s Nuhi:1 1 mvw-test,-59.5,78,305.5"
+                execute console command "/mm m spawn -s Nuhi:1 1 mvw-test,-57.5,78,309.5"
+                execute console command "/mm m spawn -s Nuhi:1 1 mvw-test,-53.5,78,229.5"
+                execute console command "/mm m spawn -s Nuhi:1 1 mvw-test,-49.5,78,301.5"
+                execute console command "/mm m spawn -s Nuhi:1 1 mvw-test,-47.5,78,305.5"
+                execute console command "/mm m spawn -s Nuhi:1 1 mvw-test,-49.5,78,309.5"
+                execute console command "/mm m spawn -s Nuhi:1 1 mvw-test,-53.5,78,311.5"
+                execute console command "/mm m spawn -s Nuhi:1 1 mvw-test,-57.5,78,301.5"
+                execute console command "/mm m spawn -s Nuhi:1 1 mvw-test,-53.5,78,299.5"
+                loop {area3.players::*}:
+                    play sound "entity.player.swim" with volume 0.5 and pitch 0 to loop-value
+                set {area3.flag} to true
+every 15 tick in "mvw-test":
+    add all players to {_loop.players::*}
+    if {area3.players::*} isn't set:
+        add "" to {area3.players::*}
+        remove "" from {area3.players::*}
+    if {area3.move.flag} is true:
+        loop all players:
+            if {area3.players::*} contains loop-player:
+                if location of loop-value isn't within {@area3.locationA} and {@area3.locationB}:
+                    remove loop-player from {area3.players::*}
+                    stop sound "record.ward" for the loop-player
+                    send "%{@prefix}%&farea3から退出" to loop-player
+            else:
+                if {area3.clear.players::*} doesn't contain loop-player:
+                    if location of loop-player is within {@area3.locationA} and {@area3.locationB}:
+                        if {area3.players::*} contains loop-player:
+                            # pass
+                        else:
+                            add loop-player to {area3.players::*}
+                            send "%{@prefix}%&farea3に到達" to loop-player
+    if {area3.flag} is true:
+        if number of {area3.players::*} > 0:
+            delete {area3.entities::*}
+            if {area3.entities::*} isn't set:
+                add "" to {area3.entities::*}
+                remove "" from {area3.entities::*}
+            loop all living entities:
+                type of loop-entity isn't player
+                loop-entity's location is within {@area3.locationA} and {@area3.locationB}
+                add loop-entity to {area3.entities::*}
+            if  number of {area3.entities::*} <= 0:
+                set {_players::*} to {area3.players::*}
+
+                if {area3.wave} is set:
+                    set {area3.wave} to 1
+                    set {area3.flag} to false
+                    set {_temp.list::*} to {area3.players::*}
+                    if {area3.move.flag} is true:
+                        set {area3.move.flag} to false
+                    if number of {area3.players::*} > 0:
+                        wait 40 ticks
+                        set {_players::*} to {area3.players::*}
+                        loop {area3.players::*}:
+                            if {area3.clear.players::*} doesn't contain loop-value:
+                                add {area3.players::*} to {area3.clear.players::*}
+                                remove loop-value from {area3.players::*}
+                                send "%{@bossName}%&6: この二人すらも倒してみせるか！" to loop-value
+                                play sound "entity.witch.ambient" with volume 0.5 and pitch 0.8 to loop-value
+                        delete {area3.players::*}
+                        set blocks within {@area3.button.location} and {@area3.button.location} to air
+                        wait 60 tick
+                        loop {_players::*}:
+                            if {area3.clear.players::*} contains loop-value:
+                                send "%{@bossName}%&6: 期待以上だ" to loop-value
+                                play sound "entity.witch.ambient" with volume 0.5 and pitch 0.8 to loop-value
+                        wait 45 tick
+                        loop {_players::*}:
+                            if {area3.clear.players::*} contains loop-value:
+                                send "%{@bossName}%&6: お前を殺し、我死霊術軍団の一端に加えるのが待ち遠しいな…" to loop-value
+                                play sound "entity.witch.ambient" with volume 0.5 and pitch 0.8 to loop-value
+                        wait 60 tick
+                        loop {_players::*}:
+                            if {area3.clear.players::*} contains loop-value:
+                                send "%{@bossName}%&6: 待っておるぞ…" to loop-value
+                                play sound "entity.witch.ambient" with volume 0.5 and pitch 0.8 to loop-value
+                        wait 40 ticks
+                        set blocks within {@area3.gate1.locationA} and {@area3.gate1.locationB} to air
+                        set blocks within {@area3.gate2.locationA} and {@area3.gate2.locationB} to air
+                        loop {_players::*}:
+                            if {area3.clear.players::*} contains loop-value:
+                                play sound "ambient.cave" with volume 1 and pitch 0 to loop-value
+                                play sound "entity.irongolem.hurt" with volume 2 and pitch 0 to loop-value at {@area3.gate2.locationA}
+                                play mob spawner flames at blocks within {@area3.gate2.locationA} and {@area3.gate2.locationB} to loop-value
+                                stop sound "record.ward" for the loop-value
+                        set blocks within {@spawnLocationA} and {@spawnLocationA} to torch
+                        set blocks within {@spawnLocationB} and {@spawnLocationB} to torch
+                        set blocks within {@spawnLocationC} and {@spawnLocationC} to torch
+                        set blocks within {@spawnLocationD} and {@spawnLocationD} to torch
+                        set blocks within {@spawnLocationE} and {@spawnLocationE} to torch
+                        set blocks within {@spawnLocationF} and {@spawnLocationF} to torch
+                        set blocks within {@spawnLocationG} and {@spawnLocationG} to torch
+                        set blocks within {@spawnLocationH} and {@spawnLocationH} to torch
+                        wait 400 ticks
+                        delete {area3.clear.players::*}
+                        loop {_temp.list::*}:
+                            if {area3.clear.players::*} contains loop-value:
+                                send "%{@prefix}%area3のクリア状況がリセットされました" to loop-value
+                        set blocks within {@area3.gate2.locationA} and {@area3.gate2.locationB} to {@gateBlockType}
+                        set blocks within {@area3.button.location} and {@area3.button.location} to end portal frame
+                    set {area3.wave} to 1
+                    set {area3.move.flag} to true
+
+        else:
+            wait 60 tick
+            loop all living entities:
+                type of loop-entity isn't player
+                loop-entity's location is within {@area3.locationA} and {@area3.locationB}
+                remove loop-entities
+            set {area3.flag} to false
+            set {area3.move.flag} to true
+            set {area3.wave} to 1
+            add "" to {area3.clear.players::*}
+            remove "" from {area3.clear.players::*}
+            set blocks within {@area3.gate2.locationA} and {@area3.gate2.locationB} to {@gate.block}
+            set blocks within {@area3.gate1.locationA} and {@area3.gate1.locationB} to air
+            set blocks within {@area3.button.location} and {@area3.button.location} to end portal frame

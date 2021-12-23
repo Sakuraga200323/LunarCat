@@ -1,0 +1,169 @@
+
+function setBlock(La: location, Lb: location, B: block):
+    set blocks within {_La} and {_Lb} to {_B}
+
+options:
+    prefix: "[&7Dungeon&f] "
+    gateBlockType: iron bars
+    bossName: "&f&kaaaaaaaa&f"
+    gate.block: iron bars
+    area2.button.location: getLocation(-86,78,304,world "mvw-test")
+    area2.locationA: getLocation(-97,77,293,world "mvw-test")
+    area2.locationB: getLocation(-74,89,319,world "mvw-test")
+    area2.gate1.locationA: getLocation(-93,78,292,world "mvw-test")
+    area2.gate1.locationB: getLocation(-96,80,293,world "mvw-test")
+    area2.gate2.locationA: getLocation(-78, 84, 318,world "mvw-test")
+    area2.gate2.locationB: getLocation(-82, 81, 319,world "mvw-test")
+
+on load:
+    set {area2.flag} to false
+    set {area2.move.flag} to true
+    set {area2.wave} to 1
+    add "" to {area2.clear.players::*}
+    remove "" from {area2.clear.players::*}
+    set blocks within {@area2.gate2.locationA} and {@area2.gate2.locationB} to {@gate.block}
+    set blocks within {@area2.gate1.locationA} and {@area2.gate1.locationB} to air
+    set blocks within {@area2.button.location} and {@area2.button.location} to end portal frame
+
+on quit:
+    if {area2.players::*} contains event-player:
+        remove event-player from {area2.players::*}
+        
+    if {area2.clear.players::*} contains event-player:
+        remove event-player from {area2.clear.players::*}
+
+on death:
+    type of event-entity is player
+    if {area2.players::*} contains event-player:
+        remove event-player from {area2.players::*}
+        stop sound "record.ward" for the event-player
+    if {area2.clear.players::*} contains event-player:
+        remove event-player from {area2.clear.players::*}
+
+
+on click:
+    if clicked block is end portal frame:
+        cancel the event
+        if {area2.players::*} contains event-player:
+            if {area2.flag} is false:
+                set clicked block to air
+                set blocks within {@area2.gate2.locationA} and {@area2.gate2.locationB} to {@gate.block}
+                set blocks within {@area2.gate1.locationA} and {@area2.gate1.locationB} to {@gate.block}
+                loop {area2.players::*}:
+                    play explosion at blocks within {@area2.gate1.locationA} and {@area2.gate1.locationB} to loop-value
+                    play explosion at blocks within {@area2.gate1.locationA} and {@area2.gate1.locationB} to loop-value
+                    play sound "entity.irongolem.hurt" with volume 2 and pitch 0 to loop-value at {@area2.gate1.locationA}
+                wait 40 tick
+                loop {area2.players::*}:
+                    send subtitle "&c汝の力を示すが良い…" to loop-value for 5 seconds with fadein 0.5 second and fade out 0.5 second
+                    play sound "entity.witch.ambient" with volume 1 and pitch 0 to loop-value
+                    play sound "ambient.cave" with volume 1 and pitch 2 to loop-value
+                    show mob spawner flames at the clicked block to loop-value
+                    send "&6==== &6&ltips &6====","&f&7敵&fを全て倒せ！" to loop-value
+                wait 120 tick
+                loop {area2.players::*}:
+                    send subtitle "&6Wave &6&l1 &7(Final Wave)" to loop-value for 5 seconds with fadein 0.5 second and fade out 0.5 second
+                    play sound "record.ward" with volume 2  and pitch 0 to the player
+                execute console command "/mm m spawn -s JuusyaA:1 1 mvw-test,-85.5,78.5,304.5"
+                execute console command "/mm m spawn -s JuusyaB:1 1 mvw-test,-85.5,83.5,304.5"
+                loop {area2.players::*}:
+                    play sound "entity.player.swim" with volume 0.5 and pitch 0 to loop-value
+                set {area2.flag} to true
+every 10 tick in "mvw-test":
+    add all players to {_loop.players::*}
+    if {area2.players::*} isn't set:
+        add "" to {area2.players::*}
+        remove "" from {area2.players::*}
+    if {area2.move.flag} is true:
+        loop all players:
+            if {area2.players::*} contains loop-player:
+                if location of loop-value isn't within {@area2.locationA} and {@area2.locationB}:
+                    remove loop-player from {area2.players::*}
+                    stop sound "record.ward" for the loop-player
+                    send "%{@prefix}%&farea2から退出" to loop-player
+            else:
+                if {area2.clear.players::*} doesn't contain loop-player:
+                    if location of loop-player is within {@area2.locationA} and {@area2.locationB}:
+                        if {area2.players::*} contains loop-player:
+                            # pass
+                        else:
+                            add loop-player to {area2.players::*}
+                            send "%{@prefix}%&farea2に到達" to loop-player
+    if {area2.flag} is true:
+        if number of {area2.players::*} > 0:
+            delete {area2.entities::*}
+            if {area2.entities::*} isn't set:
+                add "" to {area2.entities::*}
+                remove "" from {area2.entities::*}
+            loop all living entities:
+                type of loop-entity isn't player
+                loop-entity's location is within {@area2.locationA} and {@area2.locationB}
+                add loop-entity to {area2.entities::*}
+            if  number of {area2.entities::*} <= 0:
+                set {_players::*} to {area2.players::*}
+
+                if {area2.wave} is set:
+                    set {area2.wave} to 1
+                    set {area2.flag} to false
+                    set {_temp.list::*} to {area2.players::*}
+                    if {area2.move.flag} is true:
+                        set {area2.move.flag} to false
+                    if number of {area2.players::*} > 0:
+                        wait 40 ticks
+                        set {_players::*} to {area2.players::*}
+                        loop {area2.players::*}:
+                            if {area2.clear.players::*} doesn't contain loop-value:
+                                add {area2.players::*} to {area2.clear.players::*}
+                                remove loop-value from {area2.players::*}
+                                send "%{@bossName}%&6: この二人すらも倒してみせるか！" to loop-value
+                                play sound "entity.witch.ambient" with volume 0.5 and pitch 0.8 to loop-value
+                        delete {area2.players::*}
+                        set blocks within {@area2.button.location} and {@area2.button.location} to air
+                        wait 60 tick
+                        loop {_players::*}:
+                            if {area2.clear.players::*} contains loop-value:
+                                send "%{@bossName}%&6: 期待以上だ" to loop-value
+                                play sound "entity.witch.ambient" with volume 0.5 and pitch 0.8 to loop-value
+                        wait 45 tick
+                        loop {_players::*}:
+                            if {area2.clear.players::*} contains loop-value:
+                                send "%{@bossName}%&6: お前を殺し、我死霊術軍団の一端に加えるのが待ち遠しいな…" to loop-value
+                                play sound "entity.witch.ambient" with volume 0.5 and pitch 0.8 to loop-value
+                        wait 60 tick
+                        loop {_players::*}:
+                            if {area2.clear.players::*} contains loop-value:
+                                send "%{@bossName}%&6: 待っておるぞ…" to loop-value
+                                play sound "entity.witch.ambient" with volume 0.5 and pitch 0.8 to loop-value
+                        wait 40 ticks
+                        set blocks within {@area2.gate1.locationA} and {@area2.gate1.locationB} to air
+                        set blocks within {@area2.gate2.locationA} and {@area2.gate2.locationB} to air
+                        loop {_players::*}:
+                            if {area2.clear.players::*} contains loop-value:
+                                play sound "ambient.cave" with volume 1 and pitch 0 to loop-value
+                                play sound "entity.irongolem.hurt" with volume 2 and pitch 0 to loop-value at {@area2.gate2.locationA}
+                                play mob spawner flames at blocks within {@area2.gate2.locationA} and {@area2.gate2.locationB} to loop-value
+                                stop sound "record.ward" for the loop-value
+                        wait 400 ticks
+                        delete {area2.clear.players::*}
+                        loop {_temp.list::*}:
+                            if {area2.clear.players::*} contains loop-value:
+                                send "%{@prefix}%area2のクリア状況がリセットされました" to loop-value
+                        set blocks within {@area2.gate2.locationA} and {@area2.gate2.locationB} to {@gateBlockType}
+                        set blocks within {@area2.button.location} and {@area2.button.location} to end portal frame
+                    set {area2.wave} to 1
+                    set {area2.move.flag} to true
+
+        else:
+            wait 60 tick
+            loop all living entities:
+                type of loop-entity isn't player
+                loop-entity's location is within {@area2.locationA} and {@area2.locationB}
+                remove loop-entities
+            set {area2.flag} to false
+            set {area2.move.flag} to true
+            set {area2.wave} to 1
+            add "" to {area2.clear.players::*}
+            remove "" from {area2.clear.players::*}
+            set blocks within {@area2.gate2.locationA} and {@area2.gate2.locationB} to {@gate.block}
+            set blocks within {@area2.gate1.locationA} and {@area2.gate1.locationB} to air
+            set blocks within {@area2.button.location} and {@area2.button.location} to end portal frame
