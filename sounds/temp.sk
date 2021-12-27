@@ -1,0 +1,41 @@
+
+{
+  "bgm.orgelA": {
+    "sounds": [
+      "bgm/orgelA"
+    ],
+    "stream": "true",
+    "subtitle": ""
+  },
+  "bgm.orgelB": {
+    "sounds": [
+      "bgm/orgelB"
+    ],
+    "subtitle": "",
+    "stream": "true"
+  },
+  "effect.slashA": {
+    "sounds": [
+      "effect/slashA"
+    ],
+    "subtitle": "斬撃音"
+  },
+  "effect.shootA": {
+    "sounds": [
+      "effect/shootA"
+    ],
+    "subtitle": "軽 射撃音"
+  },
+  "effect.shootB": {
+    "sounds": [
+      "effect/shootB"
+    ],
+    "subtitle": "重 射撃音"
+  },
+  "effect.bulletA": {
+    "sounds": [
+      "effect/bulletA"
+    ],
+    "subtitle": "銃弾音"
+  }
+}
