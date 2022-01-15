@@ -46,7 +46,7 @@ on right click:
                 if {@debug} is true:
                     broadcast damage of player's tool
                 set {_sword.Adamage} to {d.%damage of player's tool%.atk}
-                play sound "effect.skillB" with volume 1.0 and pitch 0 at location at player's head
+                playSound("effect.skillB",1,0,location at player's head)
                 push the player forwards at speed -0.5
                 apply potion of slowness of tier 10 to the player for 20 tick
                 wait 20 tick
@@ -71,7 +71,7 @@ on right click:
                     set {_v} to vector between {_loc2} and {_loc3}
                     set {_v} to normalized {_v}
                     set {_target.loc} to {_loc2}
-                    play sound "effect.skillC" with volume 2.0 and pitch 0 at {_loc2}
+                    playSound("efect.skillC",2.0,0,{_loc2})
                     loop floor(distance between {_loc2} and {_loc3}) times:
                         set {_target.loc} to {_target.loc}~{_v}
                         if {@debug} is true:
@@ -92,7 +92,7 @@ on right click:
                                 broadcast loop-entity
                             apply potion of blindness of tier 10 to the loop-entity for 30 tick
                             apply potion of slowness of tier 3 to the loop-entity for 40 tick
-                            play sound "effect.skillC" with volume 0.5 and pitch 2 at {_target.loc}
+                            playSound("efect.skillC",0.5,2,{_target.loc})
                             set loop-entity's no damage ticks to 0
                             show sweep attack at {_target.loc}
                             show 3 end rod with offset of 0, 0, 0 and speed 0.05 at {_target.loc}
@@ -106,9 +106,9 @@ on right click:
                 wait 80 tick
                 set the cooldown of player's offhand tool for player to 80 ticks
                 set {ct.ss2.%uuid of player%} to true
-                play sound "block.anvil.place" with volume 0.5 and pitch 1 at {_loc2}
+                playSound("block.anvil.place",0.5,1,{_loc2})
             else:
-                play sound "block.anvil.place" with volume 0.5 and pitch 1 at {_loc2}
+                playSound("block.anvil.place",0.5,1,{_loc2})
 
 
 on right click:
@@ -126,7 +126,7 @@ on right click:
                 set {ct.ss.%uuid of player%} to false
                 #push the player forwards
                 set {_sword.Adamage} to {d.%damage of player's tool%.atk}
-                play sound "effect.skillB" with volume 1.0 and pitch 0 at location at player's head
+                playSound("effect.skillB",1.0,0,location at player's head)
                 push the player forwards at speed -0.5
                 apply potion of slowness of tier 10 to the player for 10 tick
                 wait 10 tick
@@ -153,8 +153,8 @@ on right click:
                     set {_v} to normalized {_v}
                     set {_target.loc} to {_loc2}
                     set player's target entity to {_target.entity}
-                    play sound "effect.slashA" with volume 1.0 and pitch 2 at {_loc2}
-                    play sound "effect.skillC" with volume 2.0 and pitch 2 at {_loc2}
+                    playSound("effect.slashA",1.0,2,{_loc2})
+                    playSound("effect.skillC",2,2,{_loc2})
                     loop floor(distance between {_loc2} and {_loc3}) times:
                         set {_target.loc} to {_target.loc}~{_v}
                         show sweep attack at {_target.loc}
@@ -174,7 +174,7 @@ on right click:
                             uuid of loop-entity isn't uuid of event-player
                             if {@debug} is true:
                                 broadcast loop-entity
-                            play sound "effect.slashA" with volume 0.5 and pitch 2 at {_target.loc}
+                            playSound("effect.slashA",0.5,2,{_loc2})
                             set loop-entity's no damage ticks to 0
                             show sweep attack at {_target.loc}
                             apply potion of blindness of tier 10 to the loop-entity for 30 tick
@@ -188,9 +188,9 @@ on right click:
                 set the cooldown of player's off hand tool for player to 60 ticks
                 wait 60 tick
                 set {ct.ss.%uuid of player%} to true
-                play sound "block.anvil.place" with volume 0.5 and pitch 1 at {_loc2}
+                playSound("block.anvil.place",0.5,1,{_loc2})
             else:
-                play sound "block.anvil.place" with volume 0.25 and pitch 2 at location at player's head
+                playSound("block.anvil.place",0.25,2,location at player's head)
 
 
 
@@ -226,18 +226,17 @@ on right click:
                     wait 1 tick
                     set player's velocity to vector(0,-3,0)
                     set gravity of player to on
-                                         
-                    rotate(player,player's yaw, player's pitch - 90)
+                    rotateAdd(player,-90,0)
                     if player's target is set:
                         make player damage player's target by {_sword.Adamage}
-                    wait 10 tick
+                    wait 40 tick
                                          
                 set the cooldown of player's offhand tool for player to 20 ticks
                 wait 20 tick
                 set {ct.ss.%uuid of player%} to true
-                play sound "block.anvil.place" with volume 0.5 and pitch 1 at {_loc2}
+                playSound("block.anvil.place",0.5,1,location at player's head)
             else:
-                play sound "block.anvil.place" with volume 0.5 and pitch 1 at {_loc2}
+                playSound("block.anvil.place",0.5,1,location at player's head)
 
                      
 on damage:
@@ -245,17 +244,17 @@ on damage:
         set {parry.%uuid of attacker%} to false
         apply potion of blindness of tier 10 to the victim for 30 tick
         apply potion of slowness of tier 3 to the victim for 60 tick
-        play sound "block.glass.break" with volume 2 and pitch 0 at location at victim's head
-        play sound "block.glass.break" with volume 2 and pitch 0 at location at victim's head
-        play sound "block.glass.break" with volume 2 and pitch 0 at location at victim's head
+        playSound("block.glass.break",2,0,location at attacker's head)
+        playSound("block.glass.break",2,0,location at attacker's head)
+        playSound("block.glass.break",2,0,location at attacker's head)
 
 on damage of player:
     attack and projectile contains damage cause
     if victim is sneaking:
         if lore of victim's tool contains "&7Type: &8Sword":
-            play sound "effect.skillC" with volume 1 and pitch 1 at location at victim
+            playSound("effect.skillC",1,1,location at victim)
         if lore of victim's tool contains "&7Type: &8Dagger":
-            play sound "effect.skillC" with volume 1 and pitch 2 at location at victim
+            playSound("effect.skillC",1,1,location at victim)
         set {_def} to {d.%damage of victim's tool%.def}
         set {_dmg} to damage-{_def}
         set damage to max({_dmg},1)
