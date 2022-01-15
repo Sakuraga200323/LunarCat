@@ -1,0 +1,265 @@
+options:
+    debug: false
+    prefix: "<< &b&oSwordSkill&f >> "
+
+on break:
+    if type of player's tool is diamond hoe:
+        cancel the event
+
+on load:
+    set {d.150.atk} to 6
+    set {d.150.def} to 4
+    
+    set {d.151.atk} to 4
+    set {d.151.def} to 2
+    
+    set {d.152.atk} to 8
+    set {d.152.def} to 5
+    
+    set {d.153.atk} to 5
+    set {d.153.def} to 3
+    
+    loop all players:
+        set {ct.ss.%uuid of loop-player%} to true
+    loop all players:
+        set {ct.ss2.%uuid of loop-player%} to true
+    broadcast "%{@prefix}%&fLoaded &6%script%&7.sk"
+        
+
+on join:
+    set {ct.ss.%uuid of player%} to true
+    set {ct.ss2.%uuid of player%} to true
+
+on right click:
+    player is sneaking
+    player's pitch isn't -90
+    type of player's off hand tool is diamond hoe
+    {ct.ss.%uuid of player%} is true
+    {ct.ss2.%uuid of player%} is true
+    if name of player's off hand tool contains "&fソニックリープ":
+        if lore of player's tool contains "&7Type: &8Sword":
+            if {ct.ss2.%uuid of player%} isn't set:
+                set {ct.ss.%uuid of player%} to true
+            if {ct.ss2.%uuid of player%} is true:
+                cancel the event
+                set {ct.ss2.%uuid of player%} to false
+                if {@debug} is true:
+                    broadcast damage of player's tool
+                set {_sword.Adamage} to {d.%damage of player's tool%.atk}
+                play sound "effect.skillB" with volume 1.0 and pitch 0 at location at player's head
+                push the player forwards at speed -0.5
+                apply potion of slowness of tier 10 to the player for 20 tick
+                wait 20 tick
+                set {_p.loc} to location at player's head
+                if player's target entity's head is set:
+                    set {_e.loc} to location at player's target entity's head
+                else:
+                    set {_e.loc} to location 3 meter forwards player's head
+                set {_n.loc} to locCalcSubt({_e.loc},{_p.loc},event-world)
+                set {_p.vec} to horizontalVecFromLoc({_n.loc})
+                loop 8 time:
+                    if {@debug} is true:
+                        send "----------------" to player
+                    set {_loc2} to location at player's head
+                    if {@debug} is true:
+                        show mob spawner flames at {_loc2} to all players
+
+                    set {_loc3} to location 10 meter forwards player's head
+                    if {@debug} is true:
+                        show mob spawner flames at {_loc3} to all players
+
+                    set {_v} to vector between {_loc2} and {_loc3}
+                    set {_v} to normalized {_v}
+                    set {_target.loc} to {_loc2}
+                    play sound "effect.skillC" with volume 2.0 and pitch 0 at {_loc2}
+                    loop floor(distance between {_loc2} and {_loc3}) times:
+                        set {_target.loc} to {_target.loc}~{_v}
+                        if {@debug} is true:
+                            broadcast "target.loc: %{_target.loc}%"
+                        if block at {_target.loc} is not air:
+                            if {@debug} is true:
+                                show barrier at {_target.loc} to all players
+                            exit 1 sections
+                        show 10 light green dust with offset of 0, 0, 0 and speed 0.05 at {_target.loc} ~ vector(0,-0.25,0)
+                        set {_entities::*} to living entities in radius 2 around {_target.loc} where [distance between {_target.loc} and input's head is less than 1]
+                        set {_entities::*} to {_entities::*} where [ uuid of input isn't uuid of event-player]
+                        make player damage {_entities::*} by {_sword.Adamage}/2
+                        if {@debug} is true:
+                            broadcast {_entities::*}
+                        loop living entities in radius 2 around {_target.loc} where [distance between {_target.loc} and input's head is less than 1]:
+                            uuid of loop-entity isn't uuid of event-player
+                            if {@debug} is true:
+                                broadcast loop-entity
+                            apply potion of blindness of tier 10 to the loop-entity for 30 tick
+                            apply potion of slowness of tier 3 to the loop-entity for 40 tick
+                            play sound "effect.skillC" with volume 0.5 and pitch 2 at {_target.loc}
+                            set loop-entity's no damage ticks to 0
+                            show sweep attack at {_target.loc}
+                            show 3 end rod with offset of 0, 0, 0 and speed 0.05 at {_target.loc}
+                            # damage loop-entity by 5 hearts with fake cause an attack
+                    set {_p.vec.c} to {_p.vec}
+                    push the player downwards at speed 5
+                    push the player {_p.vec} at speed 0.75
+                    #push the player {_p.vec.c} at speed 2
+                    add 90 to player's yaw
+                
+                wait 80 tick
+                set the cooldown of player's offhand tool for player to 80 ticks
+                set {ct.ss2.%uuid of player%} to true
+                play sound "block.anvil.place" with volume 0.5 and pitch 1 at {_loc2}
+            else:
+                play sound "block.anvil.place" with volume 0.5 and pitch 1 at {_loc2}
+
+
+on right click:
+    player is not sneaking
+    player's pitch isn't -90
+    type of player's off hand tool is diamond hoe
+    {ct.ss.%uuid of player%} is true
+    {ct.ss2.%uuid of player%} is true
+    if name of player's off hand tool contains "&fソニックリープ":
+        if lore of player's tool contains "&7Type: &8Sword":
+            if {ct.ss.%uuid of player%} isn't set:
+                set {ct.ss.%uuid of player%} to true
+            if {ct.ss.%uuid of player%} is true:
+                cancel the event
+                set {ct.ss.%uuid of player%} to false
+                #push the player forwards
+                set {_sword.Adamage} to {d.%damage of player's tool%.atk}
+                play sound "effect.skillB" with volume 1.0 and pitch 0 at location at player's head
+                push the player forwards at speed -0.5
+                apply potion of slowness of tier 10 to the player for 10 tick
+                wait 10 tick
+                set {_p.loc} to location at player's head
+                if player's target entity's head is set:
+                    set {_e.loc} to location at player's target entity's head
+                    set {_target.entity} to player's target entity
+                else:
+                    set {_e.loc} to location 3 meter forwards player's head
+                set {_n.loc} to locCalcSubt({_e.loc},{_p.loc},event-world)
+                set {_p.vec} to horizontalVecFromLoc({_n.loc})
+                loop 4 time:
+                    if {@debug} is true:
+                        send "----------------" to player
+                    set {_loc2} to location at player's head
+                    if {@debug} is true:
+                        show mob spawner flames at {_loc2} to all players
+
+                    set {_loc3} to location 10 meter forwards player's head
+                    if {@debug} is true:
+                        show mob spawner flames at {_loc3} to all players
+
+                    set {_v} to vector between {_loc2} and {_loc3}
+                    set {_v} to normalized {_v}
+                    set {_target.loc} to {_loc2}
+                    set player's target entity to {_target.entity}
+                    play sound "effect.slashA" with volume 1.0 and pitch 2 at {_loc2}
+                    play sound "effect.skillC" with volume 2.0 and pitch 2 at {_loc2}
+                    loop floor(distance between {_loc2} and {_loc3}) times:
+                        set {_target.loc} to {_target.loc}~{_v}
+                        show sweep attack at {_target.loc}
+                        show 3 end rod with offset of 0, 0, 0 and speed 0.05 at {_target.loc}
+                        if {@debug} is true:
+                            broadcast "target.loc: %{_target.loc}%"
+                        if block at {_target.loc} is not air:
+                            if {@debug} is true:
+                                show barrier at {_target.loc} to all players
+                            exit 1 sections
+                        set {_entities::*} to living entities in radius 2 around {_target.loc} where [distance between {_target.loc} and input's head is less than 2] 
+                        set {_entities::*} to {_entities::*} where [ uuid of input isn't uuid of event-player]
+                        make player damage {_entities::*} by {_sword.Adamage}/2
+                        if {@debug} is true:
+                            broadcast {_entities::*}
+                        loop living entities in radius 2 around {_target.loc} where [distance between {_target.loc} and input's head is less than 2]:
+                            uuid of loop-entity isn't uuid of event-player
+                            if {@debug} is true:
+                                broadcast loop-entity
+                            play sound "effect.slashA" with volume 0.5 and pitch 2 at {_target.loc}
+                            set loop-entity's no damage ticks to 0
+                            show sweep attack at {_target.loc}
+                            apply potion of blindness of tier 10 to the loop-entity for 30 tick
+                            apply potion of slowness of tier 3 to the loop-entity for 20 tick
+                            # damage loop-entity by 5 hearts with fake cause an attack
+                    set {_p.vec.c} to {_p.vec}
+                    push the player downwards at speed 50
+                    push the player {_p.vec} at speed 1
+                    #push the player {_p.vec.c} at speed 2
+                    add 90 to player's yaw
+                set the cooldown of player's off hand tool for player to 60 ticks
+                wait 60 tick
+                set {ct.ss.%uuid of player%} to true
+                play sound "block.anvil.place" with volume 0.5 and pitch 1 at {_loc2}
+            else:
+                play sound "block.anvil.place" with volume 0.25 and pitch 2 at location at player's head
+
+
+
+    if name of player's off hand tool contains "&fホリゾンタルスクエア":
+        if lore of player's tool contains "&7Type: &8Sword":
+            if true:
+                cancel the event
+                set {ct.ss.%uuid of player%} to false
+                set {_sword.Adamage} to {d.%damage of player's tool%}
+                set {_p.loc} to location at player's head
+                if player's target entity's head is set:
+                    set {_e.loc} to location at player's target entity's head
+                else:
+                    set {_e.loc} to location 3 blocks forwards {_p.loc}
+                if distance between {_e.loc} and {_p.loc} > 7:
+                    set {_e.loc} to location 3 blocks forwards {_p.loc}
+                loop 4 times:
+                    broadcast "======"
+                    show 3 end rod with offset of 0, 0, 0 and speed 0.0 at {_p.loc}
+                    set {_normalized.loc} to locCalcSubt({_e.loc},{_p.loc},event-world)
+                    set {_p.vec} to horizontalVecFromLoc({_normalized.loc})
+                    broadcast "_e.loc: %{_e.loc}%"
+                    broadcast "_p.loc: %{_p.loc}%"
+                    broadcast "_p.vec: %{_p.vec}%"
+                    set {_tp.target.loc} to location 2 blocks right {_p.loc}
+                    set {_tp.target.loc} to {_tp.target.loc} ~ {_p.vec}
+                    broadcast "_tp.target.loc: %{_tp.target.loc}%"
+                    set {_normalized.tp.target.loc} to locCalcSubt({_tp.target.loc},{_p.loc},event-world)
+                    set {_tp.vec} to horizontalVecFromLoc({_normalized.tp.target.loc})
+                    set gravity of player to off
+                    set player's velocity to {_tp.vec}
+                    broadcast "_tp.vec: %{_tp.vec}%"
+                    wait 1 tick
+                    set player's velocity to vector(0,-3,0)
+                    set gravity of player to on
+                                         
+                    rotate(player,player's yaw, player's pitch - 90)
+                    if player's target is set:
+                        make player damage player's target by {_sword.Adamage}
+                    wait 10 tick
+                                         
+                set the cooldown of player's offhand tool for player to 20 ticks
+                wait 20 tick
+                set {ct.ss.%uuid of player%} to true
+                play sound "block.anvil.place" with volume 0.5 and pitch 1 at {_loc2}
+            else:
+                play sound "block.anvil.place" with volume 0.5 and pitch 1 at {_loc2}
+
+                     
+on damage:
+    if {parry.%uuid of attacker%} is true:
+        set {parry.%uuid of attacker%} to false
+        apply potion of blindness of tier 10 to the victim for 30 tick
+        apply potion of slowness of tier 3 to the victim for 60 tick
+        play sound "block.glass.break" with volume 2 and pitch 0 at location at victim's head
+        play sound "block.glass.break" with volume 2 and pitch 0 at location at victim's head
+        play sound "block.glass.break" with volume 2 and pitch 0 at location at victim's head
+
+on damage of player:
+    attack and projectile contains damage cause
+    if victim is sneaking:
+        if lore of victim's tool contains "&7Type: &8Sword":
+            play sound "effect.skillC" with volume 1 and pitch 1 at location at victim
+        if lore of victim's tool contains "&7Type: &8Dagger":
+            play sound "effect.skillC" with volume 1 and pitch 2 at location at victim
+        set {_def} to {d.%damage of victim's tool%.def}
+        set {_dmg} to damage-{_def}
+        set damage to max({_dmg},1)
+        set {parry.%uuid of victim%} to true
+        apply potion of strength of tier 1 to the victim for 10 tick
+        wait 5 tick
+        set {parry.%uuid of victim%} to false
