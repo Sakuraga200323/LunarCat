@@ -1,4 +1,4 @@
-# LunarCat
+# LightCubeServer
 ※現在改修中です
 鯖に関するファイルを載せています
 主にリソパ置き場です。
